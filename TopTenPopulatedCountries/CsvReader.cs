@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using TopTenPopulatedCountries;
 
-namespace Pluralsight.BegCShCollections.TopTenPops
+namespace Pluralsight.BegCShCollections.ReadAllCountries
 {
     class CsvReader
     {
@@ -17,9 +17,9 @@ namespace Pluralsight.BegCShCollections.TopTenPops
             this._csvFilePath = csvFilePath;
         }
 
-        public Dictionary<string, Country> ReadAllCountries()
+        public Dictionary<string, List<Country>> ReadAllCountries()
         {
-            var countries = new Dictionary<string, Country>();
+            var countries = new Dictionary<string, List<Country>>();
 
             using (StreamReader sr = new StreamReader(_csvFilePath))
             {
@@ -30,7 +30,15 @@ namespace Pluralsight.BegCShCollections.TopTenPops
                 while ((csvLine = sr.ReadLine()) != null)
                 {
                     Country country = ReadCountryFromCsvLine(csvLine);
-                    countries.Add(country.Code, country);
+                    if (countries.ContainsKey(country.Region))
+                    {
+                        countries[country.Region].Add(country);
+                    }
+                    else
+                    {
+                        List<Country> countriesInRegion = new List<Country>() { country };
+                        countries.Add(country.Region, countriesInRegion);
+                    }
                 }
             }
 
@@ -65,6 +73,7 @@ namespace Pluralsight.BegCShCollections.TopTenPops
 
             // TryParse leaves population=0 if can't parse
             int.TryParse(popText, out int population);
+
             return new Country(name, code, region, population);
         }
     }

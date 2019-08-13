@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Pluralsight.BegCShCollections.TopTenPops;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TopTenPopulatedCountries;
 
-namespace Pluralsight.BegCShCollections.TopTenPops
+namespace Pluralsight.BegCShCollections.ReadAllCountries
 {
     class Program
     {
@@ -13,21 +14,23 @@ namespace Pluralsight.BegCShCollections.TopTenPops
         {
             string filePath = @"C:\Users\c775434\Documents\TopTenPopulatedCountries\TopTenPopulatedCountries\Pop by Largest Final.csv";
             CsvReader reader = new CsvReader(filePath);
-            Dictionary<string, Country> countries = reader.ReadAllCountries();
 
+            Dictionary<string, List<Country>> countries = reader.ReadAllCountries();
 
-            // NB. Bear in mind when trying this code that string comparison is by default case-sensitive.
-            // Hence, for example, to display Finland, you need to type in "FIN" in capitals. "fin" won't work.
-            Console.WriteLine("Which country code do you want to look up? ");
-            string userInput = Console.ReadLine();
+            foreach (string region in countries.Keys)
+                Console.WriteLine(region);
 
-            bool gotCountry = countries.TryGetValue(userInput, out Country country);
-            if (!gotCountry)
-                Console.WriteLine($"Sorry, there is no country with code, {userInput}");
+            Console.Write("Which of the above regions do you want? ");
+            string chosenRegion = Console.ReadLine();
+
+            if (countries.ContainsKey(chosenRegion))
+            {
+                // display 10 highest population countries in the selected region
+                foreach (Country country in countries[chosenRegion].Take(10))
+                    Console.WriteLine($"{PopulationFormatter.FormatPopulation(country.Population).PadLeft(15)}: {country.Name}");
+            }
             else
-                Console.WriteLine($"{country.Name} has population {PopulationFormatter.FormatPopulation(country.Population)}");
+                Console.WriteLine("That is not a valid region");
         }
     }
 }
-
-
